@@ -8,7 +8,7 @@ mod convert;
 mod shaper;
 mod fontdb_ext;
 
-use crate::{FillRule, Group, Node, NodeExt, NodeKind, Paint, Path, PathData, PathSegment, Rect, Color};
+use crate::{FillRule, Group, Node, NodeExt, NodeKind, Paint, Path, PathData, PathSegment, Rect, Color, ClusterBbox};
 use crate::{ShapeRendering, Stroke, StrokeWidth, Transform, TransformFromBBox, Tree, Units};
 use crate::PathBbox;
 use crate::{converter, svgtree};
@@ -237,6 +237,7 @@ fn convert_span(
 ) -> Option<Path> {
     let mut path_data = PathData::new();
     let mut bboxes_data = PathData::new();
+    let mut cluster_bboxes_data:Vec<ClusterBbox> = vec![];
 
     for cluster in clusters {
         if !cluster.visible {
@@ -259,6 +260,9 @@ fn convert_span(
             if let Some(r) = Rect::new(0.0, -cluster.ascent, cluster.advance, cluster.height()) {
                 if let Some(r) = r.transform(&cluster.transform) {
                     bboxes_data.push_rect(r);
+                    if let Some(r) = r.transform(&cluster.transform) {
+                        cluster_bboxes_data.push(ClusterBbox(cluster.codepoint, r.to_path_bbox()));
+                    }
                 }
             }
         }
@@ -289,6 +293,7 @@ fn convert_span(
         stroke: span.stroke.take(),
         rendering_mode: ShapeRendering::default(),
         text_bbox: bboxes_data.bbox().and_then(|r| r.to_rect()),
+        cluster_bbox: Some(cluster_bboxes_data),
         data: Rc::new(path_data),
     };
 

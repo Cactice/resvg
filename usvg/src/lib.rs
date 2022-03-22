@@ -372,7 +372,17 @@ pub struct Svg {
     pub view_box: ViewBox,
 }
 
-
+/// Cluster/grapheme is a single, unbroken, renderable character.
+/// It can be positioned, rotated, spaced, etc.
+///
+/// Let's say we have `й` which is *CYRILLIC SMALL LETTER I* and *COMBINING BREVE*.
+/// It consists of two code points, will be shaped (via harfbuzz) as two glyphs into one cluster,
+/// and then will be combined into the one `OutlinedCluster`.
+///
+/// Technically, a cluster can contain multiple codepoints,
+/// but we are storing only the first one.
+#[derive(Clone, Debug)]
+pub struct ClusterBbox(char,PathBbox);
 /// A path element.
 #[derive(Clone, Debug)]
 pub struct Path {
@@ -412,6 +422,9 @@ pub struct Path {
     /// that were converted from text.
     pub text_bbox: Option<Rect>,
 
+    /// Contains each cluster's characterPoint and bbox
+    pub cluster_bbox: Option<Vec<ClusterBbox>>,
+
     /// Segments list.
     ///
     /// All segments are in absolute coordinates.
@@ -428,6 +441,7 @@ impl Default for Path {
             stroke: None,
             rendering_mode: ShapeRendering::default(),
             text_bbox: None,
+            cluster_bbox: None,
             data: std::rc::Rc::new(PathData::default()),
         }
     }

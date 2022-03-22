@@ -905,6 +905,7 @@ fn convert_path(
         stroke,
         rendering_mode,
         text_bbox: None,
+        cluster_bbox: None,
         data: path,
     }));
 

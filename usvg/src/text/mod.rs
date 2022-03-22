@@ -260,9 +260,7 @@ fn convert_span(
             if let Some(r) = Rect::new(0.0, -cluster.ascent, cluster.advance, cluster.height()) {
                 if let Some(r) = r.transform(&cluster.transform) {
                     bboxes_data.push_rect(r);
-                    if let Some(r) = r.transform(&cluster.transform) {
-                        cluster_bboxes_data.push(ClusterBbox(cluster.codepoint, r.to_path_bbox()));
-                    }
+                    cluster_bboxes_data.push(ClusterBbox(cluster.codepoint, r.to_path_bbox()));
                 }
             }
         }

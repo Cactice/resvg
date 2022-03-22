@@ -1,0 +1,2 @@
+# Results in too much diff without this
+disable_all_formatting = true
